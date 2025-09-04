@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Interativo: Desafio de Senha no Twine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The SPA is structured as an interactive tutorial with distinct sections: Intro, Core Philosophy, an Interactive Code Explorer with tabs and line-by-line explanations, and a Visual Flow Summary. This structure was chosen to transform a static document into an active learning experience, breaking down the topic into manageable, explorable chunks, which is more effective for teaching novice developers than a linear text. -->
+    <!-- Visualization & Content Choices: Report Info: Twine code snippets and explanations -> Goal: Inform/Organize -> Viz/Presentation Method: Interactive tabbed code viewer with JS-powered hover/click explanations for each line -> Interaction: User selects a passage to view its code and can inspect individual lines for detailed context -> Justification: This provides a multi-layered learning experience, allowing users to see the overview and dive into details as needed, which greatly enhances comprehension. Report Info: Story flow -> Goal: Organize/Show Relationships -> Viz/Presentation: HTML/Tailwind diagram -> Interaction: Hover to highlight connections -> Justification: Visually reinforces the crucial architectural concept of the three-passage structure. -> Library/Method: Vanilla JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4; /* stone-100 */
+            color: #292524; /* stone-800 */
+        }
+        .code-line {
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .code-line:hover {
+            background-color: #e7e5e4; /* stone-200 */
+        }
+        .active-tab {
+            background-color: #a8a29e; /* stone-400 */
+            color: #fafaf9; /* stone-50 */
+        }
+        .flow-box {
+            transition: all 0.2s ease-in-out;
+            border-color: #a8a29e;
+        }
+        .flow-arrow {
+            transition: all 0.2s ease-in-out;
+            color: #78716c; /* stone-500 */
+        }
+        .highlight {
+            border-color: #44403c; /* stone-700 */
+            transform: scale(1.05);
+            box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.1);
+        }
+        .highlight-arrow {
+            color: #44403c; /* stone-700 */
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-5xl">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-stone-900">Tutorial Interativo de Twine</h1>
+            <p class="text-lg text-stone-600 mt-2">Criando um Desafio de Senha com Tentativas Limitadas</p>
+            <p class="text-sm text-stone-500 mt-4">por Humberto Luz Oliveira</p>
+        </header>
+
+        <main>
+            <section id="intro" class="mb-16 bg-stone-50 p-6 rounded-lg shadow-sm">
+                <p class="text-lg leading-relaxed mb-6">Olá! Uma das mecânicas mais clássicas em jogos é a boa e velha porta trancada. É um ótimo quebra-cabeça para iniciantes, pois nos ensina os três pilares de uma história dinâmica no formato Harlowe:</p>
+                <div class="grid md:grid-cols-3 gap-6 text-center">
+                    <div class="bg-white p-6 rounded-lg border border-stone-200">
+                        <h3 class="text-xl font-bold mb-2">1. Lembrar de Coisas</h3>
+                        <p class="text-stone-600">Usar variáveis para guardar informações, como a senha correta e as tentativas restantes.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg border border-stone-200">
+                        <h3 class="text-xl font-bold mb-2">2. Receber Informações</h3>
+                        <p class="text-stone-600">Capturar a senha que o jogador digita para poder verificá-la.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg border border-stone-200">
+                        <h3 class="text-xl font-bold mb-2">3. Tomar Decisões</h3>
+                        <p class="text-stone-600">Verificar se a senha está correta e decidir o que acontece a seguir.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="philosophy" class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-8">A Filosofia: Separar a Preparação da Ação</h2>
+                <p class="text-center max-w-3xl mx-auto text-stone-600 mb-8">O erro mais comum é misturar o código que inicia o quebra-cabeça com o código que o executa. Para evitar isso, usamos uma estrutura de três passagens, garantindo que as tentativas do jogador não sejam reiniciadas a cada erro.</p>
+                <div class="flex justify-center items-start gap-8 md:gap-16">
+                    <div class="text-center w-1/3">
+                        <h3 class="text-lg font-bold text-red-600 mb-2">❌ Abordagem Incorreta</h3>
+                        <div class="p-4 bg-red-100 border-2 border-dashed border-red-300 rounded-lg">
+                            <p class="font-semibold">Cena Única</p>
+                            <p class="text-sm text-red-700">Define variáveis e verifica a senha na mesma passagem.</p>
+                        </div>
+                         <p class="text-xs text-stone-500 mt-2">Causa um loop lógico que reinicia as tentativas.</p>
+                    </div>
+                    <div class="text-center w-2/3">
+                        <h3 class="text-lg font-bold text-green-600 mb-2">✅ Abordagem Correta</h3>
+                        <div class="flex items-center justify-center gap-2">
+                           <div class="p-3 bg-green-100 border-2 border-dashed border-green-300 rounded-lg text-center">
+                                <p class="font-semibold text-sm">1. Setup</p>
+                           </div>
+                           <span class="text-2xl text-green-500 font-mono">→</span>
+                           <div class="p-3 bg-green-100 border-2 border-dashed border-green-300 rounded-lg text-center">
+                                <p class="font-semibold text-sm">2. Interação</p>
+                           </div>
+                           <span class="text-2xl text-green-500 font-mono">→</span>
+                           <div class="p-3 bg-green-100 border-2 border-dashed border-green-300 rounded-lg text-center">
+                                <p class="font-semibold text-sm">3. Lógica</p>
+                           </div>
+                        </div>
+                        <p class="text-xs text-stone-500 mt-2">Separa as responsabilidades, criando um fluxo robusto.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="code-explorer" class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-8">Explorador de Código Interativo</h2>
+                <p class="text-center max-w-3xl mx-auto text-stone-600 mb-8">Clique nas abas para ver o código de cada passagem. Passe o mouse ou clique em uma linha de código para ver uma explicação detalhada.</p>
+                
+                <div class="bg-white rounded-lg shadow-lg border border-stone-200 overflow-hidden">
+                    <div class="flex border-b border-stone-200">
+                        <button id="tab-1" class="tab-button flex-1 p-4 font-bold text-stone-700 hover:bg-stone-100 transition-colors active-tab">Passo 1: Setup</button>
+                        <button id="tab-2" class="tab-button flex-1 p-4 font-bold text-stone-700 hover:bg-stone-100 transition-colors">Passo 2: Interação</button>
+                        <button id="tab-3" class="tab-button flex-1 p-4 font-bold text-stone-700 hover:bg-stone-100 transition-colors">Passo 3: Lógica</button>
+                    </div>
+                    
+                    <div class="md:flex">
+                        <div id="code-display" class="w-full md:w-1/2 bg-stone-800 text-white p-6 font-mono text-sm leading-relaxed overflow-x-auto">
+                        </div>
+                        <div id="explanation-display" class="w-full md:w-1/2 p-6 bg-stone-50 border-t md:border-t-0 md:border-l border-stone-200">
+                           <h4 id="explanation-title" class="font-bold text-lg mb-2 text-stone-800"></h4>
+                           <p id="explanation-text" class="text-stone-600"></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="flow-summary">
+                <h2 class="text-3xl font-bold text-center mb-8">Resumo do Fluxo da História</h2>
+                <p class="text-center max-w-3xl mx-auto text-stone-600 mb-10">Passe o mouse sobre as passagens para ver como elas se conectam. Esta estrutura visual mostra o caminho do jogador através do quebra-cabeça, destacando o fluxo lógico que criamos.</p>
+                <div class="flex flex-col items-center space-y-4">
+                    <div class="flow-box border-2 p-4 rounded-lg bg-white w-64 text-center shadow-sm" data-flow="1,2">
+                        <h3 class="font-bold">1. Inicio do Jogo</h3>
+                        <p class="text-sm text-stone-500">(configura variáveis)</p>
+                    </div>
+                    <div class="flow-arrow text-4xl" data-flow-arrow="1,2">↓</div>
+                    <div class="flow-box border-2 p-4 rounded-lg bg-white w-64 text-center shadow-sm" data-flow="1,2,3,5">
+                        <h3 class="font-bold">2. Porta Misteriosa</h3>
+                        <p class="text-sm text-stone-500">(jogador clica e digita)</p>
+                    </div>
+                    <div class="flow-arrow text-4xl" data-flow-arrow="2,3">↓</div>
+                    <div class="flow-box border-2 p-4 rounded-lg bg-white w-64 text-center shadow-sm" data-flow="2,3,4,5,6">
+                        <h3 class="font-bold">3. Verifique Senha</h3>
+                         <p class="text-sm text-stone-500">(processa a decisão)</p>
+                    </div>
+                    <div class="w-full flex justify-center items-start mt-4">
+                        <div class="w-1/3 text-center">
+                            <div class="flow-arrow text-3xl" data-flow-arrow="3,4">↙</div>
+                            <div class="flow-box border-2 p-4 rounded-lg bg-green-50 w-full text-center shadow-sm" data-flow="3,4">
+                                <h3 class="font-bold text-green-800">Sucesso</h3>
+                                <p class="text-sm text-green-600">→ Fase 2</p>
+                            </div>
+                        </div>
+                        <div class="w-1/3 text-center">
+                             <div class="flow-arrow text-3xl" data-flow-arrow="3,5">↑</div>
+                            <div class="flow-box border-2 p-4 rounded-lg bg-yellow-50 w-full text-center shadow-sm" data-flow="3,5">
+                                <h3 class="font-bold text-yellow-800">Erro</h3>
+                                <p class="text-sm text-yellow-600">→ Tentar de Novo</p>
+                            </div>
+                        </div>
+                         <div class="w-1/3 text-center">
+                            <div class="flow-arrow text-3xl" data-flow-arrow="3,6">↘</div>
+                            <div class="flow-box border-2 p-4 rounded-lg bg-red-50 w-full text-center shadow-sm" data-flow="3,6">
+                                <h3 class="font-bold text-red-800">Falha</h3>
+                                <p class="text-sm text-red-600">→ Recomeçar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="text-center mt-16 pt-8 border-t border-stone-200">
+            <p class="text-stone-600">Espero que esta documentação detalhada ajude outros criadores a entender a "magia" por trás da lógica do Harlowe.</p>
+            <p class="mt-2 text-stone-500 font-semibold">Continue criando!</p>
+             <p class="text-sm text-stone-400 mt-1">— HlO - Humb@</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const codeData = {
+                '1': {
+                    title: 'Passo 1: A Passagem de Setup',
+                    explanation: "Esta é a porta de entrada para o nosso quebra-cabeça. Sua única função é definir as variáveis iniciais e mover o jogador para a cena de ação.",
+                    lines: [
+                        { code: ':: Inicio do Jogo', explanation: 'Define o nome da passagem. É como o título de um capítulo.' },
+                        { code: '', explanation: '' },
+                        { code: `<!-- Define a senha correta. -->`, explanation: 'Comentários em HTML são usados para anotações. Eles não aparecem para o jogador.'},
+                        { code: '(set: $senha_correta to "albedo")', explanation: 'A macro (set:) cria uma variável de história (com $). Usamos "to" para atribuir o valor "albedo" a ela.' },
+                        { code: '', explanation: '' },
+                        { code: `<!-- Define as tentativas iniciais. -->`, explanation: 'Outro comentário para explicar o que o próximo bloco de código faz.'},
+                        { code: '(set: $tentativas to 2)', explanation: 'Criamos outra variável de história para rastrear o número de tentativas, começando com 2.' },
+                        { code: '', explanation: '' },
+                        { code: 'Bem-vindo ao jogo!', explanation: 'Este é o texto normal que será exibido para o jogador nesta passagem.' },
+                        { code: '', explanation: '' },
+                        { code: '(goto: "Porta Misteriosa")', explanation: 'A macro (goto:) redireciona o jogador para outra passagem automaticamente, sem a necessidade de um clique.' }
+                    ]
+                },
+                '2': {
+                    title: 'Passo 2: A Passagem de Interação (O Hub)',
+                    explanation: "Esta é a cena principal do quebra-cabeça. O jogador retornará aqui toda vez que errar a senha. O importante é que esta passagem não redefine nenhuma variável.",
+                    lines: [
+                        { code: ':: Porta Misteriosa', explanation: 'O nome desta passagem serve como o "hub" para o nosso quebra-cabeça.' },
+                        { code: '', explanation: '' },
+                        { code: 'Você tem $tentativas tentativa(s).', explanation: 'Exibimos o valor atual da variável $tentativas diretamente no texto. Harlowe a substitui pelo seu valor (ex: 2).' },
+                        { code: '', explanation: '' },
+                        { code: '(link: "Tentar digitar a senha")[', explanation: 'A macro (link:) cria um texto clicável. O código dentro do hook (os colchetes []) só é executado no clique.' },
+                        { code: '    (set: $senha_digitada to', explanation: 'Quando o link é clicado, nós definimos uma nova variável, $senha_digitada, com o valor retornado pela macro (prompt:).'},
+                        { code: '        (prompt: "Qual é a senha?", ""))', explanation: 'A macro (prompt:) abre uma janela pop-up. O texto que o jogador digita é o resultado que será guardado.' },
+                        { code: '', explanation: '' },
+                        { code: '    (goto: "Verifique Senha")', explanation: 'Depois que o jogador digita a senha, nós o enviamos imediatamente para a passagem de lógica para processar a resposta.' },
+                        { code: ']', explanation: 'O colchete de fechamento marca o fim do código que é executado pelo (link:).' }
+                    ]
+                },
+                '3': {
+                    title: 'Passo 3: A Passagem de Lógica (O Cérebro)',
+                    explanation: "Esta passagem processa a entrada do jogador, atualiza o estado do jogo e redireciona o jogador para o resultado apropriado.",
+                    lines: [
+                        { code: ':: Verifique Senha', explanation: 'O nome da passagem que funciona como o "cérebro" da nossa lógica.' },
+                        { code: '', explanation: '' },
+                        { code: '(if: $senha_digitada is $senha_correta)[', explanation: 'A macro (if:) verifica uma condição. Aqui, ela checa se o valor de $senha_digitada é igual ao de $senha_correta.' },
+                        { code: '    Parabéns! Você acertou!', explanation: 'Este texto e o link abaixo só aparecem se a condição do (if:) for verdadeira.' },
+                        { code: '    [[Fase 2 - Segredo Revelado]]', explanation: 'Um link simples que leva o jogador para a próxima fase do jogo.' },
+                        { code: '](else:)[', explanation: 'O (else:) executa o código em seu hook se a condição do (if:) for falsa (ou seja, a senha está errada).' },
+                        { code: '    (set: $tentativas to $tentativas - 1)', explanation: 'A primeira coisa que fazemos ao errar é diminuir o número de tentativas em 1.' },
+                        { code: '', explanation: '' },
+                        { code: '    (if: $tentativas > 0)[', explanation: 'Dentro do (else:), fazemos outra verificação: o jogador ainda tem tentativas? ($tentativas maior que 0).' },
+                        { code: '        Senha incorreta...', explanation: 'Se ele ainda tiver tentativas, mostramos uma mensagem de erro.' },
+                        { code: '        [[Tentar Novamente->Porta Misteriosa]]', explanation: 'E o enviamos de volta para a passagem "Porta Misteriosa" para tentar de novo.' },
+                        { code: '    ](else:)[', explanation: 'Se a segunda verificação (if: $tentativas > 0) for falsa, significa que as tentativas acabaram.' },
+                        { code: '        Você esgotou suas tentativas.', explanation: 'Mostramos a mensagem de falha.' },
+                        { code: '        [[Voltar ao Início->Inicio do Jogo]]', explanation: 'E oferecemos um link para recomeçar o quebra-cabeça do zero.' },
+                        { code: '    ]', explanation: 'Fecha o hook do (if:) aninhado.' },
+                        { code: ']', explanation: 'Fecha o hook do (else:) principal.' }
+                    ]
+                }
+            };
+
+            const codeDisplay = document.getElementById('code-display');
+            const explanationTitle = document.getElementById('explanation-title');
+            const explanationText = document.getElementById('explanation-text');
+            const tabs = document.querySelectorAll('.tab-button');
+
+            function displayCode(tabId) {
+                const data = codeData[tabId];
+                explanationTitle.textContent = data.title;
+                explanationText.textContent = data.explanation;
+                
+                codeDisplay.innerHTML = '';
+                data.lines.forEach((line, index) => {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.classList.add('code-line');
+                    lineDiv.dataset.explanation = line.explanation;
+                    lineDiv.innerHTML = line.code.replace(/ /g, '&nbsp;') || '&nbsp;';
+                    
+                    if (line.explanation) {
+                        lineDiv.addEventListener('mouseover', () => {
+                            if(line.explanation) {
+                                explanationTitle.textContent = `Linha ${index + 1}:`;
+                                explanationText.textContent = line.explanation;
+                            }
+                        });
+                        lineDiv.addEventListener('click', () => {
+                             if(line.explanation) {
+                                explanationTitle.textContent = `Linha ${index + 1}:`;
+                                explanationText.textContent = line.explanation;
+                            }
+                        });
+                    }
+                    
+                    codeDisplay.appendChild(lineDiv);
+                });
+
+                 codeDisplay.addEventListener('mouseleave', () => {
+                    explanationTitle.textContent = data.title;
+                    explanationText.textContent = data.explanation;
+                });
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active-tab'));
+                    tab.classList.add('active-tab');
+                    const tabId = tab.id.split('-')[1];
+                    displayCode(tabId);
+                });
+            });
+
+            displayCode('1');
+
+            const flowBoxes = document.querySelectorAll('.flow-box');
+            const flowArrows = document.querySelectorAll('.flow-arrow');
+
+            flowBoxes.forEach(box => {
+                box.addEventListener('mouseenter', () => {
+                    const flowId = box.dataset.flow;
+                    if (!flowId) return;
+
+                    const ids = flowId.split(',');
+                    
+                    flowBoxes.forEach(b => {
+                        const bId = b.dataset.flow;
+                        if (bId && ids.some(id => bId.includes(id))) {
+                            b.classList.add('highlight');
+                        } else {
+                            b.classList.remove('highlight');
+                        }
+                    });
+                     flowArrows.forEach(a => {
+                        const aId = a.dataset.flowArrow;
+                         if (aId && ids.some(id => aId.includes(id))) {
+                            a.classList.add('highlight-arrow');
+                        } else {
+                            a.classList.remove('highlight-arrow');
+                        }
+                    });
+                });
+
+                box.addEventListener('mouseleave', () => {
+                    flowBoxes.forEach(b => b.classList.remove('highlight'));
+                    flowArrows.forEach(a => a.classList.remove('highlight-arrow'));
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
