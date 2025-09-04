@@ -1,0 +1,61 @@
+:: StoryTitle
+História sem Título
+
+
+:: StoryData
+{
+  "ifid": "25C99980-2972-4669-AFD7-AB832232DA7F",
+  "format": "Harlowe",
+  "format-version": "3.3.9",
+  "start": "Cena 1 (Fase 1 - Início do Jogo)",
+  "zoom": 1
+}
+
+
+:: Cena 1 (Fase 1 - Início do Jogo) {"position":"25,25","size":"100,100"}
+(set: $senha_correta to "albedo")
+(set: $tentativas to 3)
+
+Bem-vindo ao jogo! Você encontrou uma porta misteriosa. Para abri-la, precisa de uma senha secreta.
+
+(goto: "Porta Misteriosa")
+
+
+:: Fase 2 - Segredo Revelado {"position":"275,150","size":"100,100"}
+   Você abriu a porta misteriosa! Bem-vindo à Fase 2.
+    Explore o que há além...
+    
+    [[Continuar Aventura->Próxima Fase (Exemplo)]]
+
+
+:: Porta Misteriosa {"position":"150,25","size":"100,100"}
+Você está diante da porta misteriosa.
+
+Você tem $tentativas tentativa(s) restante(s).
+
+(link: "Tentar digitar a senha")[
+    (set: $senha_digitada to (prompt: "Qual é a senha?", ""))
+    (goto: "VerifiqueSenha")
+]
+
+
+:: Próxima Fase (Exemplo) {"position":"275,275","size":"100,100"}
+
+
+
+:: VerifiqueSenha {"position":"275,25","size":"100,100"}
+(if: $senha_digitada is $senha_correta)[
+    Parabéns! Você acertou a senha secreta!
+    [[Fase 2 - Segredo Revelado]]
+](else:)[
+    (set: $tentativas to $tentativas - 1)
+    (if: $tentativas > 0)[
+        A senha ''$senha_digitada'' está incorreta. Você ainda tem $tentativas tentativa(s) restante(s).
+        
+        [[Tentar Novamente->Porta Misteriosa]]
+    ](else:)[
+        Você esgotou todas as suas tentativas. A porta se fecha, e você é teletransportado de volta para o início.
+        
+        [[Voltar ao Início->Cena 1 (Fase 1 - Início do Jogo)]]
+    ]
+]
